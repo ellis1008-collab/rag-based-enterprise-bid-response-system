@@ -1,0 +1,61 @@
+name: bidpilot-ai
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bidpilot-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-bidpilot}
+      POSTGRES_USER: ${POSTGRES_USER:-bidpilot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bidpilot}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-bidpilot} -d $${POSTGRES_DB:-bidpilot}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    image: bidpilot-backend:local
+    container_name: bidpilot-backend
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://bidpilot:bidpilot@postgres:5432/bidpilot}
+      MODEL_CONFIG_SECRET_KEY: ${MODEL_CONFIG_SECRET_KEY:-bidpilot-dev-model-config-secret}
+      DEFAULT_PROVIDER: ${DEFAULT_PROVIDER:-mock}
+      RAG_RETRIEVER_TYPE: ${RAG_RETRIEVER_TYPE:-simple}
+      CHROMA_PERSIST_DIR: ${CHROMA_PERSIST_DIR:-/app/.chroma}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-mock}
+      EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-}
+      EMBEDDING_API_KEY: ${EMBEDDING_API_KEY:-}
+      EMBEDDING_MODEL_NAME: ${EMBEDDING_MODEL_NAME:-}
+      CORS_ALLOW_ORIGINS: ${CORS_ALLOW_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - chroma_data:/app/.chroma
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${FRONTEND_API_BASE_URL:-http://localhost:8000}
+    image: bidpilot-frontend:local
+    container_name: bidpilot-frontend
+    environment:
+      BACKEND_API_ORIGIN: http://backend:8000
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  chroma_data:

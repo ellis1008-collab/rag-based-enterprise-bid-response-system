@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+*.db
+.chroma/
+
+# Node
+node_modules/
+dist/
+npm-debug.log*
+*.tsbuildinfo
+
+# Environment
+.env
+
+# Editor
+.idea/
+.vscode/
