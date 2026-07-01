@@ -372,14 +372,3 @@ Compose 配置检查：
 
 ```bash
 docker compose config
-```
-
-## 简历亮点说明
-
-- 从 0 到 1 搭建面向招投标场景的 RAG + Agent 大模型应用。
-- 设计统一 LLM Provider 抽象，支持 Mock fallback 与 OpenAI-compatible 真实模型切换。
-- 使用 Pydantic Schema 约束大模型结构化输出，降低幻觉和脏数据入库风险。
-- 实现可替换 Retriever 抽象，支持 SimpleKeywordRetriever fallback 与 Chroma 向量检索切换。
-- 构建 LangGraph Agent 工作流与 AgentRun / LLMCallLog 可观测性链路，展示抽取、检索、模型调用、风险汇总和保存步骤。
-- 完成从 RFP 上传到响应矩阵、人工复核、风险报告、CSV/Excel/Word 导出的端到端业务闭环。
-- 使用 FastAPI、SQLAlchemy、React、TypeScript、Tailwind CSS 和 Docker Compose 完成全栈工程化交付。
